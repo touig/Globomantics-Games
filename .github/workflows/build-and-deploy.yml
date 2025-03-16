@@ -5,6 +5,7 @@ on:
     branches: [ develop ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 env:
   AZURE_WEBAPP_NAME: 'globomantics-web-game'   # set this to your application's name
@@ -25,6 +26,7 @@ jobs:
       # Use Action located in https://github.com/actions
       - name: Check out repository code
         uses: actions/checkout@v2  
+      #- uses: actions/checkout@main
 
       - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
       
@@ -36,13 +38,26 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
         run: echo "This event is a pull request"
 
-      #- uses: actions/checkout@main
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
       
       - name: 'Setup .NET Core'
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }} 
-      
+
+      - name: Display dotnet version
+        run: dotnet --version
+        
+      - run: echo "The preinstalled tools are located here on the runner ${{ runner.tool_cache }}."
+        
+      - name: List files in tool cache
+        run: |
+          ls ${{ runner.tool_cache }}
+        
+      - run: echo "This job's status is ${{ job.status }}."
+
       - name: 'Build app package'
         run: |
           dotnet restore '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln'
