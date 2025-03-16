@@ -4,7 +4,7 @@ on:
   push:
     branches: [ develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ recette, main ]
   workflow_dispatch:
 
 env:
@@ -58,8 +58,25 @@ jobs:
         
       - run: echo "This job's status is ${{ job.status }}."
 
-      - name: 'Build app package'
+      - name: 'Build app'
         run: |
           dotnet restore '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln'
-          dotnet build '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' --configuration Release
+          dotnet build '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' --configuration Release --no-restore
+          
+      - name: 'Package app'
+        run: dotnet pack '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' --configuration Release --no-build --output .
+          
+      - run:  ls
+          
+      - name: 'Publish app'
+        run: |
           dotnet publish '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/app-package' 
+
+          
+
+#        dotnet nuget add source --username <your account> --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/<yourorg>/index.json"
+#          dotnet nuget push ./*.nupkg --skip-duplicate --source "github" --api-key ${GITHUB_TOKEN}
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}          
+          
+          
