@@ -16,7 +16,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@main
+      # Display the event that triggered the workflow
+      - run: echo "The job was triggered by a ${{ github.event_name }} event."
+
+      # Information about the repository and branch
+      - run: echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+
+      # Use Action located in https://github.com/actions
+      - name: Check out repository code
+        uses: actions/checkout@v2  
+
+      - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
+      
+      - run: echo "Your repository has been copied to the path ${{ github.workspace }} on the runner."
+      
+      - run: echo "The workflow is now ready to test your code on the runner."
+      
+      - name: conditional step when event name is pull request
+        if: ${{ github.event_name == 'pull_request' }}
+        run: echo "This event is a pull request"
+
+      #- uses: actions/checkout@main
       
       - name: 'Setup .NET Core'
         uses: actions/setup-dotnet@v1
