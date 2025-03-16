@@ -3,6 +3,8 @@ name: Build and deploy web game
 on:
   push:
     branches: [ develop ]
+  pull_request:
+    branches: [ main ]
 
 env:
   AZURE_WEBAPP_NAME: 'globomantics-web-game'   # set this to your application's name
@@ -25,9 +27,4 @@ jobs:
         run: |
           dotnet restore '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln'
           dotnet build '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' --configuration Release
-<<<<<<< HEAD
           dotnet publish '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/app-package' 
-=======
-          dotnet publish '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/app-package' 
-          
->>>>>>> 1f3aaf5dd199ac1f099afa678de290a1caa0a2c7
