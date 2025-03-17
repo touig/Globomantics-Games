@@ -76,7 +76,6 @@ jobs:
         run: |
           dotnet publish '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/app-package'
 
-
 #        dotnet nuget add source --username <your account> --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/<yourorg>/index.json"
 #          dotnet nuget push ./*.nupkg --skip-duplicate --source "github" --api-key ${GITHUB_TOKEN}
 #        env:
