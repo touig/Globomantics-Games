@@ -17,7 +17,6 @@ on:
   pull_request_target:
     branches: [ "recette" ]
 
-
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
