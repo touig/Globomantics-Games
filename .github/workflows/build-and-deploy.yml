@@ -40,16 +40,18 @@ jobs:
       - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
       
       - run: echo "Your repository has been copied to the path ${{ github.workspace }} on the runner."
-      
-      - run: echo "The workflow is now ready to test your code on the runner."
-      
-      - name: conditional step when event name is pull request
-        if: ${{ github.event_name == 'pull_request' }}
-        run: echo "This event is a pull request"
 
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
+      
+      - name: List of the GitHub Actions environment variables on Windows
+        run: env
+      
+      - name: conditional step when event name is pull request
+        if: ${{ github.event_name == 'pull_request_target' }}
+        run: echo "This event is a pull request_target"
+
       
       - name: 'Setup .NET Core'
         uses: actions/setup-dotnet@v1
@@ -75,21 +77,18 @@ jobs:
       - name: 'Package app'
         run: dotnet pack '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' --configuration Release --no-build --output .
           
-      - run:  ls
-          
       - name: 'Publish app'
         run: |
           dotnet publish '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/app-package'
 
-      
       - name: Create Draft Release
         id: create_draft_release
-        uses: actions/action-gh-release@v2
+        uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'origin/develop/')   
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: develop_0.1.0
-          release_name: Globomantics
+          tag_name: ${{ github.base_ref }}_0.1.0
+          name: Globomantics
           draft: true
           prerelease: false
