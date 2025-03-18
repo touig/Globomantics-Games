@@ -23,10 +23,12 @@ jobs:
 
     steps:
       # Display the event that triggered the workflow
-      - run: echo "The job was triggered by a ${{ github.event_name }} event."
+      - name: Evenement declencheur du job build-and-deplo
+        run: echo "The job was triggered by a ${{ github.event_name }} event."
 
       # Information about the repository and branch
-      - run: echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Nom de la branche et projet GitHub
+        run: echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
 
       # Date du Pipeline
       - name: Get current date
@@ -37,54 +39,71 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v2  
 
-      - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
+      # Repo cloné dans le runner
+      - name: Repertoire cloné dans le runner GitHub
+        run: echo "The ${{ github.repository }} repository has been cloned to the runner."
       
-      - run: echo "Your repository has been copied to the path ${{ github.workspace }} on the runner."
+      # Workspace copié dans le runner  
+      - name: Workspace copié dans le runner GitHub
+        run: echo "Your repository has been copied to the path ${{ github.workspace }} on the runner."
 
+      # Liste des fichiers dans le workspace
       - name: List files in the repository
         run: |
           ls ${{ github.workspace }}
       
+      # Liste de toutes les variables d'environnement sur Windows
       - name: List of the GitHub Actions environment variables on Windows
         run: env
       
+      # Exemple de conditional step
       - name: conditional step when event name is pull request
         if: ${{ github.event_name == 'pull_request_target' }}
         run: echo "This event is a pull request_target"
 
-      
+      # Marketplace 
       - name: 'Setup .NET Core'
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }} 
 
+      # Vérification version Dotnet
       - name: Display dotnet version
         run: dotnet --version
         
-      - run: echo "The preinstalled tools are located here on the runner ${{ runner.tool_cache }}."
+      # Emplacement des outils du runner
+      - name: Emlplacement des outils installés dans le runner ${{ runner.name }}
+        run: echo "The preinstalled tools are located here on the runner ${{ runner.tool_cache }}."
         
-      - name: List files in tool cache
+      # Outils installés dans le runner  
+      - name: List files in tool cache on the runner ${{ runner.name }}
         run: |
           ls ${{ runner.tool_cache }}
-        
-      - run: echo "This job's status is ${{ job.status }}."
+      
+      # Statut du job
+      - name: Statut du job
+        run: echo "This job's status is ${{ job.status }}."
 
-      - name: 'Build app'
+      # Construction de l'application
+      - name: Build app
         run: |
           dotnet restore '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln'
           dotnet build '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' --configuration Release --no-restore
           
-      - name: 'Package app'
+      # Packaging de l'application
+      - name: Package app
         run: dotnet pack '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' --configuration Release --no-build --output .
           
-      - name: 'Publish app'
+      # Publication de l'application
+      - name: Publish app
         run: |
           dotnet publish '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/app-package'
 
+      # Création des Releases
       - name: Create Draft Release
         id: create_draft_release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'origin/develop/')   
+        if: startsWith(github.ref, 'refs/heads/develop')   
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
