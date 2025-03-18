@@ -30,11 +30,6 @@ jobs:
       - name: Nom de la branche et projet GitHub
         run: echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
 
-      # Date du Pipeline
-      - name: Get current date
-        id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
-
       # Use Action located in https://github.com/actions
       - name: Check out repository code
         uses: actions/checkout@v2  
@@ -72,7 +67,7 @@ jobs:
         run: dotnet --version
         
       # Emplacement des outils du runner
-      - name: Emlplacement des outils installés dans le runner ${{ runner.name }}
+      - name: Emplacement des outils installés dans le runner ${{ runner.name }}
         run: echo "The preinstalled tools are located here on the runner ${{ runner.tool_cache }}."
         
       # Outils installés dans le runner  
@@ -99,15 +94,63 @@ jobs:
         run: |
           dotnet publish '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/app-package'
 
-      # Création des Releases
+  determine-environment:
+    runs-on: ubuntu-latest
+    needs: [build-and-deploy]
+
+    steps:
+      # Détermination des environnements
+      - name: Select environment
+        id: select-environment
+        run: |
+          if [ ( "${{ github.event_name }}" == "push" || "${{ github.event_name }}" == "workflow_dispatch" ) && ( ${{ github.ref }}.contains("develop") ) ]; then
+            echo "develop"
+            echo "selected-stage=develop" >> "$GITHUB_OUTPUT"
+          elif [ ( "${{ github.event_name }}" == "pull_request_target" || "${{ github.event_name }}" == "workflow_dispatch" ) && ( ${{ github.ref }}.contains("recette") ]; then
+            echo "recette"
+            echo "selected-stage=recette" >> "$GITHUB_OUTPUT"
+          elif [ ( "${{ github.event_name }}" == "pull_request_target" || "${{ github.event_name }}" == "workflow_dispatch" ) && ( ${{ github.ref }}.contains("production") ]; then
+            echo "production"
+            echo "selected-stage=production" >> "$GITHUB_OUTPUT"
+          else
+            echo "nada"
+          fi
+      
+      outputs:
+        selected-stage: ${{ steps.select-environment.outputs.selected-environment }}
+
+
+  deploy-environment:
+    runs-on: ubuntu-latest
+    needs: [determine-environment]
+
+    steps:
+      # Création des Releases par environnement
       - name: Create Draft Release
         id: create_draft_release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/heads/develop')   
+        if: ${{ needs.determine-environment.outputs.selected-stage == 'develop' }}   
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.base_ref }}_0.1.0
-          name: Globomantics
+          tag_name: 0.1.0
+          name: ${{ env.AZURE_WEBAPP_NAME }}_${{ github.ref }}
           draft: true
           prerelease: false
+        elif: ${{ needs.determine-environment.outputs.selected-stage == 'recette' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: 0.1.0
+          name: ${{ env.AZURE_WEBAPP_NAME }}_${{ github.ref }}
+          draft: false
+          prerelease: true
+        elif: ${{ needs.determine-environment.outputs.selected-stage == 'production' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: 0.1.0
+          name: ${{ env.AZURE_WEBAPP_NAME }}_${{ github.ref }}
+          draft: false
+          prerelease: false
+  
