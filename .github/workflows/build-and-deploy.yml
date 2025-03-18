@@ -18,7 +18,6 @@ jobs:
 
   build-and-deploy:
     runs-on: ubuntu-latest
-
     needs: [analyze_codeql]
 
     steps:
@@ -116,8 +115,8 @@ jobs:
             echo "nada"
           fi
       
-      outputs:
-        selected-stage: ${{ steps.select-environment.outputs.selected-environment }}
+    outputs:
+      selected-stage: ${{ steps.select-environment.outputs.selected-environment }}
 
 
   deploy-environment:
@@ -126,31 +125,33 @@ jobs:
 
     steps:
       # Création des Releases par environnement
-      - name: Create Draft Release
-        id: create_draft_release
+      - name: Create Draft develop
+        id: create_draft_develop
         uses: softprops/action-gh-release@v2
         if: ${{ needs.determine-environment.outputs.selected-stage == 'develop' }}   
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: 0.1.0
-          name: ${{ env.AZURE_WEBAPP_NAME }}_${{ github.ref }}
+          name: ${{ env.AZURE_WEBAPP_NAME }}_${{ needs.determine-environment.outputs.selected-stage }}
           draft: true
-          prerelease: false
-        elif: ${{ needs.determine-environment.outputs.selected-stage == 'recette' }}
+      - name: Create PreRelease recette
+        id: create_prerelease_recette
+        uses: softprops/action-gh-release@v2
+        if: ${{ needs.determine-environment.outputs.selected-stage == 'recette' }}   
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: 0.1.0
-          name: ${{ env.AZURE_WEBAPP_NAME }}_${{ github.ref }}
-          draft: false
+          name: ${{ env.AZURE_WEBAPP_NAME }}_${{ needs.determine-environment.outputs.selected-stage }}
           prerelease: true
-        elif: ${{ needs.determine-environment.outputs.selected-stage == 'production' }}
+      - name: Create Release production
+        id: create_release_production
+        uses: softprops/action-gh-release@v2
+        if: ${{ needs.determine-environment.outputs.selected-stage == 'production' }}   
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: 0.1.0
-          name: ${{ env.AZURE_WEBAPP_NAME }}_${{ github.ref }}
-          draft: false
-          prerelease: false
-  
+          name: ${{ env.AZURE_WEBAPP_NAME }}_${{ needs.determine-environment.outputs.selected-stage }}
+          make_latest: true
