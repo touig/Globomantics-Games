@@ -114,10 +114,12 @@ jobs:
           else
             echo "nada"
           fi
-      
+          
     outputs:
       selected-stage: ${{ steps.select-environment.outputs.selected-environment }}
-
+#https://samanpavel.medium.com/github-actions-conditional-job-execution-e6aa363d2867
+#https://github.com/orgs/community/discussions/56123
+#https://docs.github.com/fr/actions/managing-workflow-runs-and-deployments/managing-deployments/managing-environments-for-deployment
 
   deploy-environment:
     runs-on: ubuntu-latest
