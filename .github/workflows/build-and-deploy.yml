@@ -87,7 +87,7 @@ jobs:
           elif [ "${{ github.ref }}" == "refs/heads/recette" ]; then
             echo "recette"
             echo "selected-env=recette" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.ref }}" == "refs/heads/production" ]; then
+          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
             echo "production"
             echo "selected-env=production" >> "$GITHUB_OUTPUT"
           else
@@ -156,7 +156,7 @@ jobs:
           tag_name: 0.1.0
           name: ${{ env.AZURE_WEBAPP_NAME }}_${{ needs.determine-environment.outputs.selected-env }}
           draft: true
-          body: "Release Note branche ${{ github.ref }} en mode draft, déclencheur par ${{ github.actor }} sur une action ${{ github.event_name }}, SHA ${{ github.sha }}"
+          body: "Release Note branche ${{ github.ref }} en mode draft, déclencheur par ${{ github.actor }} sur une action ${{ github.event_name }}, commit SHA ${{ github.sha }}"
       - name: Create PreRelease recette
         id: create_prerelease_recette
         uses: softprops/action-gh-release@v2
@@ -167,7 +167,7 @@ jobs:
           tag_name: 0.1.0
           name: ${{ env.AZURE_WEBAPP_NAME }}_${{ needs.determine-environment.outputs.selected-env }}
           prerelease: true
-          body: "Release Note branche ${{ github.ref }} en mode prerelease, déclencheur par ${{ github.actor }} sur une action ${{ github.event_name }}, SHA ${{ github.sha }}"
+          body: "Release Note branche ${{ github.ref }} en mode prerelease, déclencheur par ${{ github.actor }} sur une action ${{ github.event_name }}, commit SHA ${{ github.sha }}"
       - name: Create Release production
         id: create_release_production
         uses: softprops/action-gh-release@v2
@@ -177,5 +177,5 @@ jobs:
         with:
           tag_name: 0.1.0
           name: ${{ env.AZURE_WEBAPP_NAME }}_${{ needs.determine-environment.outputs.selected-env }}
-          make_latest: true
-          body: "Release Note branche ${{ github.ref }} en mode make_latest, déclencheur par ${{ github.actor }} sur une action ${{ github.event_name }}, SHA ${{ github.sha }}"
+          make_latest: legacy
+          body: "Release Note branche ${{ github.ref }} en mode make_latest, déclencheur par ${{ github.actor }} sur une action ${{ github.event_name }}, commit SHA ${{ github.sha }}"
