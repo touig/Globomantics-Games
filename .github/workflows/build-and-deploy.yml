@@ -51,7 +51,7 @@ jobs:
         if: ${{ github.event_name == 'pull_request_target' }}
         run: echo "This event is a pull request_target"
 
-      # Marketplace 
+      # Marketplace Dotnet
       - name: 'Setup .NET Core'
         uses: actions/setup-dotnet@v1
         with:
@@ -113,6 +113,12 @@ jobs:
     needs: [analyze_codeql]
 
     steps:
+      # Marketplace Dotnet
+      - name: 'Setup .NET Core'
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }} 
+
       # Construction de l'application
       - name: Build app
         run: |
