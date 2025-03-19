@@ -102,13 +102,13 @@ jobs:
       - name: Select environment
         id: select-environment
         run: |
-          if [ "${{ github.ref }}" == "develop" ]; then
+          if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
             echo "develop"
             echo "selected-environment=develop" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.ref }}" == "recette" ]; then
+          elif [ "${{ github.ref }}" == "refs/heads/recette" ]; then
             echo "recette"
             echo "selected-environment=recette" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.ref }}" == "production" ]; then
+          elif [ "${{ github.ref }}" == "refs/heads/production" ]; then
             echo "production"
             echo "selected-environment=production" >> "$GITHUB_OUTPUT"
           else
@@ -117,9 +117,7 @@ jobs:
 
     outputs:
       selected-stage: ${{ steps.select-environment.outputs.selected-environment }}
-#https://samanpavel.medium.com/github-actions-conditional-job-execution-e6aa363d2867
-#https://github.com/orgs/community/discussions/56123
-#https://docs.github.com/fr/actions/managing-workflow-runs-and-deployments/managing-deployments/managing-environments-for-deployment
+
 
   deploy-environment:
     runs-on: ubuntu-latest
