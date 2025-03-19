@@ -116,7 +116,7 @@ jobs:
           fi
 
     outputs:
-      selected-stage: ${{ steps.select-environment.outputs.selected-environment }}
+      selected-env: ${{ steps.select-environment.outputs.selected-environment }}
 
 
   deploy-environment:
@@ -128,30 +128,30 @@ jobs:
       - name: Create Draft develop
         id: create_draft_develop
         uses: softprops/action-gh-release@v2
-        if: ${{ needs.determine-environment.outputs.selected-environment == 'develop' }}   
+        if: ${{ needs.determine-environment.outputs.selected-env == 'refs/heads/develop' }}   
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: 0.1.0
-          name: ${{ env.AZURE_WEBAPP_NAME }}_${{ needs.determine-environment.outputs.selected-environment }}
+          name: ${{ env.AZURE_WEBAPP_NAME }}_${{ needs.determine-environment.outputs.selected-env }}
           draft: true
       - name: Create PreRelease recette
         id: create_prerelease_recette
         uses: softprops/action-gh-release@v2
-        if: ${{ needs.determine-environment.outputs.selected-environment == 'recette' }}   
+        if: ${{ needs.determine-environment.outputs.selected-env == 'refs/heads/recette' }}   
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: 0.1.0
-          name: ${{ env.AZURE_WEBAPP_NAME }}_${{ needs.determine-environment.outputs.selected-environment }}
+          name: ${{ env.AZURE_WEBAPP_NAME }}_${{ needs.determine-environment.outputs.selected-env }}
           prerelease: true
       - name: Create Release production
         id: create_release_production
         uses: softprops/action-gh-release@v2
-        if: ${{ needs.determine-environment.outputs.selected-environment == 'production' }}   
+        if: ${{ needs.determine-environment.outputs.selected-env == 'refs/heads/production' }}   
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: 0.1.0
-          name: ${{ env.AZURE_WEBAPP_NAME }}_${{ needs.determine-environment.outputs.selected-environment }}
+          name: ${{ env.AZURE_WEBAPP_NAME }}_${{ needs.determine-environment.outputs.selected-env }}
           make_latest: true
