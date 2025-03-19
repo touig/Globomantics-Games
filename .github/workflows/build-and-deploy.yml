@@ -24,7 +24,7 @@ jobs:
       # Information about the repository and branch
       - name: Nom de la branche et projet GitHub
         run: echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-        
+
       # Repo cloné dans le runner
       - name: Repertoire cloné dans le runner GitHub
         run: echo "The ${{ github.repository }} repository has been cloned to the runner."
@@ -156,6 +156,7 @@ jobs:
           tag_name: 0.1.0
           name: ${{ env.AZURE_WEBAPP_NAME }}_${{ needs.determine-environment.outputs.selected-env }}
           draft: true
+          body: "Release Note branche ${{ github.ref }} en mode draft, déclencheur par ${{ github.actor }} sur une action ${{ github.event_name }}, SHA ${{ github.sha }}"
       - name: Create PreRelease recette
         id: create_prerelease_recette
         uses: softprops/action-gh-release@v2
@@ -166,6 +167,7 @@ jobs:
           tag_name: 0.1.0
           name: ${{ env.AZURE_WEBAPP_NAME }}_${{ needs.determine-environment.outputs.selected-env }}
           prerelease: true
+          body: "Release Note branche ${{ github.ref }} en mode prerelease, déclencheur par ${{ github.actor }} sur une action ${{ github.event_name }}, SHA ${{ github.sha }}"
       - name: Create Release production
         id: create_release_production
         uses: softprops/action-gh-release@v2
@@ -176,3 +178,4 @@ jobs:
           tag_name: 0.1.0
           name: ${{ env.AZURE_WEBAPP_NAME }}_${{ needs.determine-environment.outputs.selected-env }}
           make_latest: true
+          body: "Release Note branche ${{ github.ref }} en mode make_latest, déclencheur par ${{ github.actor }} sur une action ${{ github.event_name }}, SHA ${{ github.sha }}"
