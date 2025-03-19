@@ -104,19 +104,19 @@ jobs:
         run: |
           if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
             echo "develop"
-            echo "selected-environment=develop" >> "$GITHUB_OUTPUT"
+            echo "selected-env=develop" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.ref }}" == "refs/heads/recette" ]; then
             echo "recette"
-            echo "selected-environment=recette" >> "$GITHUB_OUTPUT"
+            echo "selected-env=recette" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.ref }}" == "refs/heads/production" ]; then
             echo "production"
-            echo "selected-environment=production" >> "$GITHUB_OUTPUT"
+            echo "selected-env=production" >> "$GITHUB_OUTPUT"
           else
             echo "nada"
           fi
 
     outputs:
-      selected-env: ${{ steps.select-environment.outputs.selected-environment }}
+      selected-env: ${{ steps.select-environment.outputs.selected-env }}
 
 
   deploy-environment:
@@ -125,6 +125,9 @@ jobs:
 
     steps:
       # Création des Releases par environnement
+      - name: Vérification de l'output
+        run: echo "Determine Environment Output ${{ needs.determine-environment.outputs.selected-env }}."
+
       - name: Create Draft develop
         id: create_draft_develop
         uses: softprops/action-gh-release@v2
