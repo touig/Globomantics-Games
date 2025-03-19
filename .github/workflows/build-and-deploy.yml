@@ -24,11 +24,7 @@ jobs:
       # Information about the repository and branch
       - name: Nom de la branche et projet GitHub
         run: echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-
-      # Use Action located in https://github.com/actions
-      - name: Check out repository code
-        uses: actions/checkout@v2  
-
+        
       # Repo cloné dans le runner
       - name: Repertoire cloné dans le runner GitHub
         run: echo "The ${{ github.repository }} repository has been cloned to the runner."
@@ -113,8 +109,12 @@ jobs:
     needs: [analyze_codeql]
 
     steps:
+      # Use Action located in https://github.com/actions
+      - name: Check out repository code
+        uses: actions/checkout@v2  
+        
       # Marketplace Dotnet
-      - name: 'Setup .NET Core'
+      - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }} 
