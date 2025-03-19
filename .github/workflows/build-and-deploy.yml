@@ -102,19 +102,19 @@ jobs:
       - name: Select environment
         id: select-environment
         run: |
-          if [ ( "${{ github.event_name }}" == "push" ) && ( ${{ github.ref }}.contains(develop) ) ]; then
+          if [ ${{ github.ref }}.contains(develop) ]; then
             echo "develop"
             echo "selected-stage=develop" >> "$GITHUB_OUTPUT"
-          elif [ ( "${{ github.event_name }}" == "pull_request_target" ) && ( ${{ github.ref }}.contains(recette) ) ]; then
+          elif [ ${{ github.ref }}.contains(recette) ]; then
             echo "recette"
             echo "selected-stage=recette" >> "$GITHUB_OUTPUT"
-          elif [ ( "${{ github.event_name }}" == "pull_request_target" ) && ( ${{ github.ref }}.contains(production) ) ]; then
+          elif [ ${{ github.ref }}.contains(production) ]; then
             echo "production"
             echo "selected-stage=production" >> "$GITHUB_OUTPUT"
           else
             echo "nada"
           fi
-          
+
     outputs:
       selected-stage: ${{ steps.select-environment.outputs.selected-environment }}
 #https://samanpavel.medium.com/github-actions-conditional-job-execution-e6aa363d2867
