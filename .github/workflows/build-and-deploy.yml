@@ -13,12 +13,8 @@ env:
   DOTNET_VERSION: '9.0'
 
 jobs:
-  analyze_codeql:
-    uses: ./.github/workflows/codeql.yml  # use the callable tests job to run tests
-
-  build-and-deploy:
+  checks:
     runs-on: ubuntu-latest
-    needs: [analyze_codeql]
 
     steps:
       # Display the event that triggered the workflow
@@ -78,24 +74,11 @@ jobs:
       - name: Statut du job
         run: echo "This job's status is ${{ job.status }}."
 
-      # Construction de l'application
-      - name: Build app
-        run: |
-          dotnet restore '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln'
-          dotnet build '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' --configuration Release --no-restore
-          
-      # Packaging de l'application
-      - name: Package app
-        run: dotnet pack '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' --configuration Release --no-build --output .
-          
-      # Publication de l'application
-      - name: Publish app
-        run: |
-          dotnet publish '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/app-package'
+
 
   determine-environment:
     runs-on: ubuntu-latest
-    needs: [build-and-deploy]
+    needs: [checks]
 
     steps:
       # Détermination des environnements
@@ -117,11 +100,40 @@ jobs:
 
     outputs:
       selected-env: ${{ steps.select-environment.outputs.selected-env }}
+      
+
+  analyze_codeql:
+    needs: [determine-environment]
+    uses: ./.github/workflows/codeql.yml  # use the callable tests job to run tests
+
+    
+
+  build-and-package:
+    runs-on: ubuntu-latest
+    needs: [analyze_codeql]
+
+    steps:
+      # Construction de l'application
+      - name: Build app
+        run: |
+          dotnet restore '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln'
+          dotnet build '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' --configuration Release --no-restore
+          
+      # Packaging de l'application
+      - name: Package app
+        run: dotnet pack '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' --configuration Release --no-build --output .
+          
+      # Publication de l'application
+      - name: Publish app
+        run: |
+          dotnet publish '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/src/web-game/Globomantics.sln' -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/app-package'
+
+
 
 
   deploy-environment:
     runs-on: ubuntu-latest
-    needs: [determine-environment]
+    needs: [build-and-package, determine-environment]
 
     steps:
       # Création des Releases par environnement
