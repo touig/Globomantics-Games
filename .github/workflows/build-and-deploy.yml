@@ -97,12 +97,17 @@ jobs:
     outputs:
       selected-env: ${{ steps.select-environment.outputs.selected-env }}
       
+    environment:
+      name: ${{ github.ref_name }}
 
+
+
+      
   analyze_codeql:
     needs: [determine-environment]
     uses: ./.github/workflows/codeql.yml  # use the callable tests job to run tests
-
     
+   
 
   build-and-package:
     runs-on: ubuntu-latest
