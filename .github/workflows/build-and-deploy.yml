@@ -8,6 +8,11 @@ on:
   pull_request_target:
     branches: [ recette, main ]
   workflow_dispatch:
+    inputs:
+      tags:
+        description: "Tag à renseigner obligatoirement"
+        required: true
+        type: string
 
 env:
   AZURE_WEBAPP_NAME: 'globomantics-web-game'   # set this to your application's name
@@ -20,6 +25,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Saisie du tag IHM
+      - name: Valur du tag saisi via IHM
+        run: echo "Saisie du tag via IHM ${{ inputs.tags }}"
+
       # Display the event that triggered the workflow
       - name: Evenement declencheur du job build-and-deplo
         run: echo "The job was triggered by a ${{ github.event_name }} event."
@@ -81,6 +90,7 @@ jobs:
 
     steps:
       # Détermination des environnements
+      # Mauvaise idée de procéder avec un script dur car ne prend pas en compte tous les cas, comme merge par exemple
       - name: Select environment
         id: select-environment
         run: |
@@ -99,7 +109,7 @@ jobs:
 
     outputs:
       selected-env: ${{ steps.select-environment.outputs.selected-env }}
-      
+    # Mieux que le script dans le run  
     environment:
       name: ${{ github.ref_name }}
 
