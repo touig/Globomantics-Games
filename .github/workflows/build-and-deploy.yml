@@ -3,6 +3,8 @@ name: Build and deploy web game - Touig
 on:
   push:
     branches: [ develop ]
+  pull_request:
+    branches: [ recette, main ]
   pull_request_target:
     branches: [ recette, main ]
   workflow_dispatch:
