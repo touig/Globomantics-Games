@@ -3,6 +3,8 @@ name: Build and deploy web game - Touig
 on:
   push:
     branches: [ develop ]
+  pull_request:
+    branches: [ recette, main ]
   pull_request_target:
     branches: [ recette, main ]
   workflow_dispatch:
@@ -97,12 +99,17 @@ jobs:
     outputs:
       selected-env: ${{ steps.select-environment.outputs.selected-env }}
       
+    environment:
+      name: ${{ github.ref_name }}
 
+
+
+      
   analyze_codeql:
     needs: [determine-environment]
     uses: ./.github/workflows/codeql.yml  # use the callable tests job to run tests
-
     
+   
 
   build-and-package:
     runs-on: ubuntu-latest
@@ -153,9 +160,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: 0.1.0
+          tag_name: ${{ env.GLOBOMANTICS_TAG }}
           name: ${{ env.AZURE_WEBAPP_NAME }}_${{ needs.determine-environment.outputs.selected-env }}
           draft: true
+          prerelease: false
           body: "Release Note branche ${{ github.ref }} en mode draft, déclencheur par ${{ github.actor }} sur une action ${{ github.event_name }}, commit SHA ${{ github.sha }}"
       - name: Create PreRelease recette
         id: create_prerelease_recette
@@ -164,8 +172,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: 0.1.0
+          tag_name: ${{ env.GLOBOMANTICS_TAG }}
           name: ${{ env.AZURE_WEBAPP_NAME }}_${{ needs.determine-environment.outputs.selected-env }}
+          draft: false
           prerelease: true
           body: "Release Note branche ${{ github.ref }} en mode prerelease, déclencheur par ${{ github.actor }} sur une action ${{ github.event_name }}, commit SHA ${{ github.sha }}"
       - name: Create Release production
@@ -175,7 +184,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: 0.1.0
+          tag_name: ${{ env.GLOBOMANTICS_TAG }}
           name: ${{ env.AZURE_WEBAPP_NAME }}_${{ needs.determine-environment.outputs.selected-env }}
-          make_latest: legacy
+          draft: false
+          prerelease: false
+          make_latest: true
           body: "Release Note branche ${{ github.ref }} en mode make_latest, déclencheur par ${{ github.actor }} sur une action ${{ github.event_name }}, commit SHA ${{ github.sha }}"
