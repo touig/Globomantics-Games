@@ -1,10 +1,9 @@
 name: Build and deploy web game - Touig
 
+# https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#running-your-workflow-when-a-pull-request-merges-1
 on:
   push:
     branches: [ develop ]
-  pull_request:
-    branches: [ recette, main ]
   pull_request_target:
     branches: [ recette, main ]
   workflow_dispatch:
@@ -13,6 +12,7 @@ on:
         description: "Tag à renseigner obligatoirement"
         required: true
         type: string
+      # La variable "tags" n'est utilisée que pour affichage dans la suite du workflow, juste présente pour exemple
 
 env:
   AZURE_WEBAPP_NAME: 'globomantics-web-game'   # set this to your application's name
@@ -26,11 +26,11 @@ jobs:
 
     steps:
       # Saisie du tag IHM
-      - name: Valur du tag saisi via IHM
+      - name: Valeur du tag saisi via IHM
         run: echo "Saisie du tag via IHM ${{ inputs.tags }}"
 
       # Display the event that triggered the workflow
-      - name: Evenement declencheur du job build-and-deplo
+      - name: Evenement declencheur du job checks
         run: echo "The job was triggered by a ${{ github.event_name }} event."
 
       # Information about the repository and branch
@@ -55,7 +55,7 @@ jobs:
         run: env
       
       # Exemple de conditional step
-      - name: conditional step when event name is pull request
+      - name: conditional step when event name is pull request target
         if: ${{ github.event_name == 'pull_request_target' }}
         run: echo "This event is a pull request_target"
 
